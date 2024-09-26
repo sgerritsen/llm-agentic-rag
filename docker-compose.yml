@@ -1,0 +1,40 @@
+name: llm-rag
+
+services:
+  python3:
+    build:
+      context: .
+      dockerfile: python.Dockerfile
+    image: python_image
+    container_name: python3
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8501:8501"
+    network_mode: host
+    depends_on:
+      - redis
+    cpuset: "0-5"        # Nginx can use CPUs 0, 1, 2, 3, 4, 5
+    deploy:
+      resources:
+        limits:
+          cpus: '6'      # Limit to 6 CPU cores
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis_container
+    restart: always
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    networks:
+      - default
+    cpuset: "0-5"        # Nginx can use CPUs 0, 1, 2, 3, 4, 5
+    deploy:
+      resources:
+        limits:
+          cpus: '6'      # Limit to 6 CPU cores
+
+networks:
+  default:
+    driver: bridge

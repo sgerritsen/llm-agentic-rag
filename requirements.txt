@@ -1,0 +1,16 @@
+llama_index
+llama-index-llms-ollama
+llama-index-multi-modal-llms-ollama
+llama-index-embeddings-ollama
+llama-index-vector-stores-chroma
+llama-index-vector-stores-redis
+llama-index-experimental
+llama-index-extractors-entity
+pymysql
+ipython
+ollama
+docx2txt
+html2text
+EbookLib
+redisvl
+streamlit
