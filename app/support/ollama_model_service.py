@@ -8,7 +8,7 @@ class OllamaModelService:
     def __init__(
             self,
             settings: Settings,
-            llm_model: Optional[str] = 'llama3.1',
+            llm_model: Optional[str] = 'llama3.2',
             llama_embedding: Optional[str] = 'mxbai-embed-large',
             base_url: Optional[str] = "http://host.docker.internal:11434"
     ):

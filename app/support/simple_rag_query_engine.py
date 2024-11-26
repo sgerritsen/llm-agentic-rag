@@ -12,7 +12,7 @@ class SimpleRagQueryEngine():
         self.index_name = index_name
 
     def buildQueryEngine(self):
-        redis_store = RedisService(index_name=self.index_name, dimensions=1024, overwrite=True).createVectorStore()
+        redis_store = RedisService(index_name=self.index_name, dimensions=1024, overwrite=False).createVectorStore()
 
         # Create storage context and index
         storage_context = StorageContext.from_defaults(vector_store=redis_store)

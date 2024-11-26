@@ -1,5 +1,6 @@
 import os
 from llama_index.core import Settings, SimpleDirectoryReader
+from llama_index.core.response.pprint_utils import pprint_response
 from support.ollama_model_service import OllamaModelService
 
 from support.redis_service import RedisService
@@ -7,6 +8,7 @@ from llama_index.core import StorageContext, VectorStoreIndex
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
+from llama_index.postprocessor.cohere_rerank import CohereRerank
 
 # Initialize Ollama and embedding models
 ollama_model_service = OllamaModelService(settings=Settings)
@@ -14,9 +16,10 @@ llm_model = ollama_model_service.llmModel()
 ollama_model_service.embeddingModel()
 
 # Load documents
-documents = SimpleDirectoryReader(input_dir='data', recursive=True).load_data(show_progress=True)
+# documents = SimpleDirectoryReader(input_files=[('/opt/project/LLM-RAG/app/data/%s' % os.getenv('DOCUMENT_NAME'))], file_metadata=get_meta, recursive=True).load_data(show_progress=True)
+documents = SimpleDirectoryReader('data/QM', required_exts=[".pdf", ".docx"], recursive=False).load_data(show_progress=True)
 
-redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, overwrite=False).createVectorStore()
+redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, overwrite=True).createVectorStore()
 
 # Create storage context and index
 storage_context = StorageContext.from_defaults(vector_store=redis_store)
@@ -24,12 +27,18 @@ vector_store = VectorStoreIndex.from_documents(documents=documents, storage_cont
 
 retriever = VectorIndexRetriever(index=vector_store, similarity_top_k=10)
 
+api_key = os.getenv('COHERE_API_KEY')
+cohere_rerank = CohereRerank(api_key=api_key, top_n=3)
+
 query_engine = RetrieverQueryEngine(
     retriever=retriever,
-    node_postprocessors=[SimilarityPostprocessor(similarity_cutoff=0.7,
-                                                 filter_empty=True,
-                                                 filter_duplicates=True,
-                                                 filter_similar=False, ), ]
+    node_postprocessors=[
+        cohere_rerank,
+        SimilarityPostprocessor(similarity_cutoff=0.7,
+                                filter_empty=True,
+                                filter_duplicates=True,
+                                filter_similar=False, ),
+    ]
 )
 
 
@@ -66,16 +75,36 @@ my_list = [
     {"TC033": "What mitigating actions are taken for security incidents across different system types (SaaS vs. Custom software)?"},
 ]
 
+for item in my_list:
+    # Write each key-value pair to the file
+    for key, value in item.items():
+        # for x in range(5):
+        response = query_engine.query(f"Answer the following question using the RSM quality manual. If you are uncertain, don't answer.\nQuestion: {value}")
+        # file.write(f"{response}\n-------------------------------------------------------\n")
+        # file.write(f"{response.metadata}\n-------------------------------------------------------\n")
+        # print(f"{response.metadata}\n-------------------------------------------------------\n")
+        # print(f"Meta data: \n")
+        # for key, value in response.metadata.items():
+        #     print(f"{value['file_name']}\n")
+        pprint_response(response, show_source=True)
+        # print(f"Response: {response}\n")
+
+exit()
+
+
 # Open a file in write mode
 with open("data/file.txt", "w") as file:
     # Loop through the list
     for item in my_list:
         # Write each key-value pair to the file
         for key, value in item.items():
+            # for x in range(5):
             response = query_engine.query(f"Answer the following question using the RSM quality manual.\nQuestion: {value}")
-            file.write(f"{response}\n-------------------------------------------------------\n")
-
-exit()
+            file.write(f"Response: {response}\nFile origin")
+            for key, value in response.metadata.items():
+                file.write(f"{value['file_name']}, ")
+            file.write(";;\n")
+            pprint_response(response, show_source=True)
 
 user_query = "?"
 response = query_engine.query(user_query)
