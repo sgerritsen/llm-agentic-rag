@@ -10,7 +10,7 @@ class OllamaModelService:
             settings: Settings,
             llm_model: Optional[str] = 'llama3.2',
             llama_embedding: Optional[str] = 'mxbai-embed-large',
-            base_url: Optional[str] = "http://host.docker.internal:11434"
+            base_url: Optional[str] = "http://ollama.llm-rag.orb.local:11434"
     ):
         self.settings = settings
         self.llm_model = llm_model

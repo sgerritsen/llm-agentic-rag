@@ -10,7 +10,7 @@ class RedisService:
             index_name: str,
             dimensions: Optional[int] = 1024,
             overwrite: Optional[bool] = False,
-            redis_url: Optional[str] = 'redis://host.docker.internal:6379'
+            redis_url: Optional[str] = 'redis://redis.llm-rag.orb.local:6379'
     ):
         self.index_name = index_name
         self.dimensions = dimensions

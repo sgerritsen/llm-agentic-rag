@@ -12,8 +12,10 @@ services:
       - .env
     ports:
       - "8501:8501"
-    network_mode: host
+    networks:
+      - default
     depends_on:
+      - ollama
       - redis
     cpuset: "0-5"        # Nginx can use CPUs 0, 1, 2, 3, 4, 5
     deploy:
@@ -34,6 +36,16 @@ services:
       resources:
         limits:
           cpus: '6'      # Limit to 6 CPU cores
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    volumes:
+      - ./app/data/ollama:/root/.ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    networks:
+      - default
 
 networks:
   default:

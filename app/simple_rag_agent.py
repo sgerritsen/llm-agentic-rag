@@ -19,10 +19,11 @@ ollama_model_service.embeddingModel()
 # documents = SimpleDirectoryReader(input_files=[('/opt/project/LLM-RAG/app/data/%s' % os.getenv('DOCUMENT_NAME'))], file_metadata=get_meta, recursive=True).load_data(show_progress=True)
 documents = SimpleDirectoryReader('data/QM', required_exts=[".pdf", ".docx"], recursive=False).load_data(show_progress=True)
 
-redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, overwrite=True).createVectorStore()
+redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, overwrite=False).createVectorStore()
 
 # Create storage context and index
 storage_context = StorageContext.from_defaults(vector_store=redis_store)
+
 vector_store = VectorStoreIndex.from_documents(documents=documents, storage_context=storage_context)
 
 retriever = VectorIndexRetriever(index=vector_store, similarity_top_k=10)
@@ -33,7 +34,6 @@ cohere_rerank = CohereRerank(api_key=api_key, top_n=3)
 query_engine = RetrieverQueryEngine(
     retriever=retriever,
     node_postprocessors=[
-        cohere_rerank,
         SimilarityPostprocessor(similarity_cutoff=0.7,
                                 filter_empty=True,
                                 filter_duplicates=True,
