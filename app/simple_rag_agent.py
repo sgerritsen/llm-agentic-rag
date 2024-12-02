@@ -23,6 +23,7 @@ redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, o
 
 # Create storage context and index
 storage_context = StorageContext.from_defaults(vector_store=redis_store)
+
 vector_store = VectorStoreIndex.from_documents(documents=documents, storage_context=storage_context)
 
 retriever = VectorIndexRetriever(index=vector_store, similarity_top_k=10)
