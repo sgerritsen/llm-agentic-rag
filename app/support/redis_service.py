@@ -47,3 +47,9 @@ class RedisService:
         # Initialize RedisVectorStore
         redis_store = RedisVectorStore(schema=self.schema, redis_url=self.redis_url, overwrite=self.overwrite)
         return redis_store
+
+    def load_index(self):
+        if self.schema is None:
+            self.createIndex()
+        # Initialize RedisVectorStore
+        return RedisVectorStore(schema=self.schema, redis_url=self.redis_url, overwrite=False)

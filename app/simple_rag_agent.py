@@ -1,10 +1,10 @@
 import os
-from llama_index.core import Settings, SimpleDirectoryReader
+from llama_index.core import Settings
 from llama_index.core.response.pprint_utils import pprint_response
 from support.ollama_model_service import OllamaModelService
 
 from support.redis_service import RedisService
-from llama_index.core import StorageContext, VectorStoreIndex
+from llama_index.core import VectorStoreIndex
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
@@ -15,18 +15,12 @@ ollama_model_service = OllamaModelService(settings=Settings)
 llm_model = ollama_model_service.llmModel()
 ollama_model_service.embeddingModel()
 
-# Load documents
-# documents = SimpleDirectoryReader(input_files=[('/opt/project/LLM-RAG/app/data/%s' % os.getenv('DOCUMENT_NAME'))], file_metadata=get_meta, recursive=True).load_data(show_progress=True)
-documents = SimpleDirectoryReader('data/QM', required_exts=[".pdf", ".docx"], recursive=False).load_data(show_progress=True)
+# Get the loaded index from the Redis server
+vector_store = RedisService(index_name=os.getenv('TOOL_NAME')).load_index()
 
-redis_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024, overwrite=True).createVectorStore()
+vector_store_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 
-# Create storage context and index
-storage_context = StorageContext.from_defaults(vector_store=redis_store)
-
-vector_store = VectorStoreIndex.from_documents(documents=documents, storage_context=storage_context)
-
-retriever = VectorIndexRetriever(index=vector_store, similarity_top_k=10)
+retriever = VectorIndexRetriever(index=vector_store_index, similarity_top_k=10)
 
 api_key = os.getenv('COHERE_API_KEY')
 cohere_rerank = CohereRerank(api_key=api_key, top_n=3)
