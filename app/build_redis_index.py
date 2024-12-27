@@ -9,8 +9,8 @@ ollama_model_service = OllamaModelService(settings=Settings)
 llm_model = ollama_model_service.llmModel()
 ollama_model_service.embeddingModel()
 
-def get_meta(file_path):
-    return {"foo": "bar"}
+# def get_meta(file_path):
+#     return {"foo": "bar"}
 
 # Load documents
 # documents = SimpleDirectoryReader(input_files=[('/opt/project/LLM-RAG/app/data/%s' % os.getenv('DOCUMENT_NAME'))], file_metadata=get_meta, recursive=True).load_data(show_progress=True)

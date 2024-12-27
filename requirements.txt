@@ -13,4 +13,4 @@ docx2txt
 html2text
 EbookLib
 redisvl
-streamlit
+flask
