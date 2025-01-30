@@ -9,11 +9,29 @@ from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.postprocessor.cohere_rerank import CohereRerank
+from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.embeddings.azure_inference import AzureAIEmbeddingsModel
 
 def main(input_text):
-    ollama_model_service = OllamaModelService(settings=Settings)
-    ollama_model_service.llmModel()
-    ollama_model_service.embeddingModel()
+    # ollama_model_service = OllamaModelService(settings=Settings)
+    # ollama_model_service.llmModel()
+    # ollama_model_service.embeddingModel()
+
+    Settings.llm = AzureOpenAI(
+        engine="gpt-4o",
+        model="gpt-4o",
+        azure_endpoint=os.getenv('AZURE_ENDPOINT'),
+        api_key=os.getenv('AZURE_API_KEY'),
+        api_version=os.getenv('AZURE_API_VERSION'),
+    )
+
+    Settings.embed_model = AzureAIEmbeddingsModel(
+        model_name='txt-embed',
+        endpoint=os.getenv('AZURE_ENDPOINT_EMBEDDING'),
+        credential=os.getenv('AZURE_API_KEY'),
+        api_version=os.getenv('AZURE_API_VERSION_EMBEDDING'),
+    )
+
     # Get the loaded index from the Redis server
     vector_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024).load_index()
 
