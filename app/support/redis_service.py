@@ -8,15 +8,19 @@ class RedisService:
     def __init__(
             self,
             index_name: str,
-            dimensions: Optional[int] = 1024,
+            dimensions: Optional[int],
             overwrite: Optional[bool] = False,
-            redis_url: Optional[str] = 'redis://host.docker.internal:6379'
+            redis_url: Optional[str] = 'redis://127.0.0.1:6379'
     ):
         self.index_name = index_name
         self.dimensions = dimensions
         self.overwrite = overwrite
         self.redis_url = redis_url
         self.schema = None
+
+    def docker(self):
+        self.redis_url = 'redis://host.docker.internal:6379'
+        return self
 
     def createIndex(self):
         self.schema = IndexSchema(

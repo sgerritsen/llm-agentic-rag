@@ -4,9 +4,12 @@ from support.ollama_model_service import OllamaModelService
 from support.redis_service import RedisService
 from llama_index.core import StorageContext, VectorStoreIndex
 
+from dotenv import load_dotenv
+load_dotenv(os.getenv('ENV_PATH'))
+
 # Initialize Ollama and embedding models
 ollama_model_service = OllamaModelService(settings=Settings)
-llm_model = ollama_model_service.llmModel()
+ollama_model_service.llmModel()
 ollama_model_service.embeddingModel()
 
 # def get_meta(file_path):

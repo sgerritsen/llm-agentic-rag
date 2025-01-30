@@ -10,12 +10,15 @@ class OllamaModelService:
             settings: Settings,
             llm_model: Optional[str] = 'llama3.2',
             llama_embedding: Optional[str] = 'mxbai-embed-large',
-            base_url: Optional[str] = "http://host.docker.internal:11434"
+            base_url: Optional[str] = 'http://127.0.0.1:11434'
     ):
         self.settings = settings
         self.llm_model = llm_model
         self.llama_embedding = llama_embedding
         self.base_url = base_url
+
+    def docker(self):
+        self.base_url = 'http://host.docker.internal:11434'
 
     def llmModel(self):
         self.settings.llm = Ollama(base_url=self.base_url, model=self.llm_model, request_timeout=45.0)

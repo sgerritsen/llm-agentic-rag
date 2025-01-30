@@ -15,14 +15,14 @@ def main(input_text):
     ollama_model_service.llmModel()
     ollama_model_service.embeddingModel()
     # Get the loaded index from the Redis server
-    vector_store = RedisService(index_name=os.getenv('TOOL_NAME')).load_index()
+    vector_store = RedisService(index_name=os.getenv('TOOL_NAME'), dimensions=1024).load_index()
 
     vector_store_index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
 
     retriever = VectorIndexRetriever(index=vector_store_index, similarity_top_k=10)
 
     api_key = os.getenv('COHERE_API_KEY')
-    cohere_rerank = CohereRerank(api_key=api_key, top_n=3)
+    cohere_rerank = CohereRerank(api_key=api_key, top_n=5)
 
     query_engine = RetrieverQueryEngine(
         retriever=retriever,
@@ -36,7 +36,7 @@ def main(input_text):
     )
 
     response = query_engine.query(
-        f"Answer the following question using only the extracts from the RSM quality manual. If you are uncertain, answer with: \'I'm unable to answer your question. Could you refrase the question?\'.\nQuestion: {input_text}")
+        f"Answer the following question using only the extracts from the RSM quality manual. If you are uncertain, answer with: \'I'm unable to answer your question. Could you refrase the question?\'.\nQuestion: '{input_text}'. Answer only!")
 
     print(f"Question: {input_text} \n")
     print(f"Response {response} \n")
